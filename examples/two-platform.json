@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "container": "Example.xcworkspace",
+  "workspace_file": "Example.code-workspace",
+  "scripts_dir": "scripts/vscode",
+  "configuration": "Debug",
+  "default_platform": "macos",
+  "profiles": {
+    "macos": {
+      "scheme": "Example Mac",
+      "schemes": ["Example Mac", "Example Mac Tests"],
+      "test_scheme": "Example Mac Tests",
+      "test_target": "ExampleTests",
+      "app_path": "Debug/Example.app",
+      "executable": "Contents/MacOS/Example",
+      "targets": {
+        "include": ["^Example-Mac/", "Tests-product$"],
+        "exclude": ["App ?Store"]
+      },
+      "exclude_projects": ["Example-iOS"],
+      "exclude_package_directories": ["iOS/LocalPackages"]
+    },
+    "ios": {
+      "scheme": "Example iOS",
+      "app_path": "Debug-iphonesimulator/Example.app",
+      "device_prefix": "iPhone",
+      "targets": {
+        "include": ["^Example-iOS/", "Tests-product$"],
+        "exclude": ["App ?Store"]
+      },
+      "exclude_projects": ["Example-Mac"],
+      "exclude_package_directories": ["macOS/LocalPackages"]
+    }
+  }
+}

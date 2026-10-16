@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.DS_Store
+.build/
+
+# Private configuration and generated integration outputs.
+/.local/
+/.vscode/
+/*.code-workspace
+/buildServer.json
+/scripts/vscode/
+.env
+.env.*
+*.log
+*.xcresult/
+DerivedData/

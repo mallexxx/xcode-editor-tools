@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "container": "Example.xcworkspace",
+  "configuration": "Debug",
+  "default_platform": "macos",
+  "profiles": {
+    "macos": {
+      "scheme": "Example",
+      "app_path": "Debug/Example.app",
+      "executable": "Contents/MacOS/Example",
+      "test_scheme": "Example Tests"
+    }
+  }
+}
