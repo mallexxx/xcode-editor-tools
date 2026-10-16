@@ -74,6 +74,38 @@ class RuntimeTests(RepositoryTest):
         result = self.run_script("xcodebuild.sh", "build", "Orbit App", environment=environment)
         self.assertEqual(result.returncode, 9, result.stderr)
 
+    def test_full_log_survives_failure_and_is_replaced_by_next_build(self):
+        self.fake("xcodebuild", "import sys\nprint('raw compiler output')\n"
+                  "print('raw diagnostic on stderr', file=sys.stderr)\nraise SystemExit(9)\n")
+        self.fake("xcbeautify", "import sys\nsys.stdin.read()\nprint('formatted summary')\n")
+        result = self.run_script("xcodebuild.sh", "build", "Orbit App")
+        self.assertEqual(result.returncode, 9, result.stderr)
+        log = self.root / ".build/xcode-editor/xcodebuild.log"
+        content = log.read_text()
+        self.assertIn("raw compiler output", content)
+        self.assertIn("raw diagnostic on stderr", content)
+        self.assertNotIn("raw compiler output", result.stdout)
+        self.assertIn(str(log), result.stdout)
+        self.assertEqual(log.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(self.git("check-ignore", "-q", str(log)).returncode, 0)
+        self.assertEqual(self.run_script("xcodebuild.sh", "--help").returncode, 0)
+        self.assertEqual(log.read_text(), content)
+        self.fake("xcodebuild", "print('next successful build')\n")
+        result = self.run_script("xcodebuild.sh", "build", "Orbit App")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(log.read_text(), "next successful build\n")
+
+    def test_log_symlink_does_not_truncate_another_file(self):
+        external = self.base / "existing diagnostic"
+        external.write_text("keep this diagnostic\n")
+        log = self.root / ".build/xcode-editor/xcodebuild.log"
+        log.symlink_to(external)
+        result = self.run_script("xcodebuild.sh", "build", "Orbit App")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("symlinked build log", result.stderr)
+        self.assertEqual(external.read_text(), "keep this diagnostic\n")
+        self.assertFalse(self.capture.exists())
+
     def test_cache_mode_maps_sources_and_uses_local_derived_data(self):
         environment = {**self.environment, "XCODE_EDITOR_WORKTREE_CACHE": "1"}
         result = self.run_script("xcodebuild.sh", "build", "Orbit App", environment=environment)

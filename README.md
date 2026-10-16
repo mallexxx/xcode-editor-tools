@@ -365,6 +365,12 @@ The BSP's index uses Xcode's index layout and a separate preparation database.
 Normal builds keep real debug paths. Do not run an Xcode build and a task build
 against the same worktree concurrently.
 
+Every wrapper build/test keeps complete, unformatted xcodebuild stdout/stderr
+in `.build/xcode-editor/xcodebuild.log`, and prints that path in the terminal.
+The log survives failed and successful builds, so it is still available if
+the debugger fails afterwards. The next actual build/test invocation replaces
+it; `--help` leaves it intact. It is Git-ignored and readable only by its owner.
+
 ## Optional compilation cache
 
 ```sh
@@ -429,6 +435,10 @@ and optional launchd job have separate lifecycles.
 | App product not found or debugger cannot launch | Build once, inspect `.build/products`, and correct the profile's `configuration`, `app_path` and macOS `executable`. Debug paths are relative to the actual built product layout. |
 | No available simulator | Install its runtime in Xcode, inspect `xcrun simctl list devices available`, and pass an available name/UDID. |
 | Terminal works but editor cannot find tools/server | Match the editor task environment's `PATH`, selected Xcode and any `SOURCEKIT_XCODE_BSP` override to the terminal. |
+
+For a build or post-build launch failure, inspect
+`.build/xcode-editor/xcodebuild.log` before the next build. Debug-adapter
+errors are separate: check the Swift/LLDB-DAP Output channels and Debug Console.
 
 For a custom configuration such as `Development`, change both the top-level
 `configuration` and the product paths in its profiles before applying. The

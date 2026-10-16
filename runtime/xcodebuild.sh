@@ -57,8 +57,17 @@ if command -v xcbeautify > /dev/null; then
 else
     echo "warning: xcbeautify unavailable; formatted Problems matchers will be limited" >&2
 fi
-raw_log="$(mktemp)"
-trap 'rm -f "${raw_log}"' EXIT
+raw_log="${root}/.build/xcode-editor/xcodebuild.log"
+mkdir -p "$(dirname "${raw_log}")"
+if [[ -L "${raw_log}" ]]; then
+    echo "Refusing to replace a symlinked build log: ${raw_log}" >&2
+    exit 1
+fi
+# Keep raw output even after a successful build: a later debugger launch can
+# still fail. Replace only when the next actual xcodebuild invocation starts.
+(umask 077; : > "${raw_log}")
+chmod 600 "${raw_log}"
+printf 'Full xcodebuild log: %s\n' "${raw_log}"
 status=0
 xcodebuild "${args[@]}" "$@" "${action}" 2>&1 | tee "${raw_log}" | "${formatter[@]}" || status=$?
 if [[ "${action}" == "test" ]] && grep -qE '^/.+:[0-9]+: error: ' "${raw_log}"; then

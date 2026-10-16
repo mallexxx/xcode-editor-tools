@@ -29,3 +29,9 @@ The generated `.code-workspace` file contains the tasks and debug launches.
 Trust the workspace and allow its folder-open task in VS Code or Cursor.
 Swift language support uses Xcode's selected toolchain and the pinned BSP
 fork. `xcbeautify` is optional; it supplies formatted Problems output.
+
+The wrapper prints the path to `.build/xcode-editor/xcodebuild.log` and keeps
+the complete, unformatted xcodebuild stdout/stderr there, even on failure or
+after a successful build followed by a debugger error. The next build/test
+invocation replaces it; displaying `--help` leaves it intact. The file is
+local, Git-ignored, and readable only by its owner.
