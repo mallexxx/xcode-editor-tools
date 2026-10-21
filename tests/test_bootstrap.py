@@ -35,6 +35,15 @@ class BootstrapTests(RepositoryTest):
         self.assertEqual(json.loads(settings.read_text()), {"editor.fontSize": 19})
         self.assertIn(".vscode/settings.json", result["preserved"])
 
+    def test_window_title_uses_each_worktree_directory_and_preserves_editor_variables(self):
+        template = "${worktreeName}${separator}${rootNameShort}"
+        self.config["editor_settings"] = {"window.title": template}
+        self.populate()
+        expected = self.root.name + "${separator}${rootNameShort}"
+        self.assertEqual(self.read_json(self.config["workspace_file"])["settings"]["window.title"], expected)
+        self.assertEqual(self.read_json(".vscode/settings.json")["window.title"], expected)
+        self.assertEqual(self.config["editor_settings"]["window.title"], template)
+
     def test_tracked_editor_and_discovery_files_are_preserved(self):
         directory = self.root / ".vscode"
         directory.mkdir()

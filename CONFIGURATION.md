@@ -23,6 +23,11 @@ Use [minimal.json](examples/minimal.json) or
 | `state_manifest` | Ownership data; defaults to `.build/xcode-editor/files.json` |
 | `background_label` | Optional launchd label; default is a stable, per-repository name |
 
+In `editor_settings["window.title"]`, `${worktreeName}` is replaced with the
+worktree directory name during generation. VS Code title variables remain
+unchanged. For example, `${worktreeName}${separator}${rootNameShort}` shows
+the worktree name even when no editor is open.
+
 Validation-skip flags are configurable. Use them only for plugins/macros you
 trust; remove them from `build_arguments` when normal Xcode validation is wanted.
 

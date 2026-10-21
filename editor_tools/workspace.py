@@ -31,6 +31,8 @@ def render_workspace(config, root=None):
         "search.exclude": {"**/.build": True, "**/node_modules": True},
     }
     settings.update(copy.deepcopy(config.get("editor_settings", {})))
+    if root and isinstance(settings.get("window.title"), str):
+        settings["window.title"] = settings["window.title"].replace("${worktreeName}", Path(root).name)
     tasks = [{
         "label": "Generate buildServer.json", "type": "process",
         "command": scripts + "/setup-build-server.py",
